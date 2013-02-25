@@ -3,6 +3,7 @@
 # and https://github.com/reidmv/puppet-module-local_user
 #
 define local_user (
+  $name,
   $email,
   $uid,
   $gid     = $uid,
@@ -34,7 +35,7 @@ define local_user (
   # Create the user
   user { $username:
     ensure   => $ensure,
-    home     => "/home/$username"
+    home     => "/home/$username",
     comment  => "$name $email $comment",
     shell    => $shell,
     uid      => $uid,
@@ -46,7 +47,7 @@ define local_user (
   # Ensure we have a group by the same name / id.
   group { $username:
     gid     => $gid,
-    require => user[$username]
+    require => User[$username]
   }
 
   # Make sure they have a home with proper permissions.
@@ -58,7 +59,7 @@ define local_user (
     owner   => $username,
     group   => $username,
     mode    => 750,
-    require => [ user[$username], group[$username] ]
+    require => [ User[$username], Group[$username] ]
   }
 
   # And a place with the right permissions for the SSH related configs
@@ -67,7 +68,7 @@ define local_user (
     owner   => $username,
     group   => $username,
     mode    => 700,
-    require => file["/home/$username/"]
+    require => File["/home/$username/"]
   }
 
   # Now make sure that the ssh key authorized files is around
@@ -76,7 +77,7 @@ define local_user (
     owner   => $username,
     group   => $username,
     mode    => 600,
-    require => file["/home/$username/.ssh"]
+    require => File["/home/$username/.ssh"]
   }
 
   # Do SOMETHING to notify the user of the new randomly generated
@@ -90,7 +91,7 @@ define local_user (
     exec { "mail ":
       path  => "/bin:/usr/bin",
       refreshonly => true,
-      subscribe   => user[$username]
+      subscribe   => User[$username]
     }
   }
 }

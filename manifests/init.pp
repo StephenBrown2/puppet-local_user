@@ -88,7 +88,7 @@ define local_user (
     notify { "$title user password set":
       message => "Password for user $title on $::certname has been set to: $password",
     }
-    exec { "mail ":
+    exec { "echo 'Password for user $title on $::certname has been set to: $password' | mail -s 'Password for user $title on $::certname has been set' $email":
       path  => "/bin:/usr/bin",
       refreshonly => true,
       subscribe   => User[$username]

@@ -85,10 +85,11 @@ define local_user (
   # message, for example. Here, we're simply creating a notify 
   # resource for the report.
   if $password {
-    notify { "$title user password set":
-      message => "Password for user $title on $::certname has been set to: $password",
+    $machinename = $::certname ? { undef => $::fqdn, default => $::certname, }
+    notify { "$username user password set":
+      message => "Password for user $username on $machinename has been set to: $password",
     }
-    exec { "echo 'Password for user $title on $::certname has been set to: $password' | mail -s 'Password for user $title on $::certname has been set' $email":
+    exec { "echo 'Password for user $username on $machinename has been set to: $password' | mail -s '$username user password set' $email":
       path  => "/bin:/usr/bin",
       refreshonly => true,
       subscribe   => User[$username]
